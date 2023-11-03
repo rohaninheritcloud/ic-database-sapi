@@ -1,0 +1,62 @@
+#%RAML 1.0
+title: ic-db-accounts-raml
+description: Package with collection of DB System APIs for IC Integrations
+
+protocols:
+  - HTTPS
+
+mediaType:
+  application/json
+
+version:
+  v1
+
+traits:
+  headers: !include /traits/Trait.raml
+
+
+resourceTypes:
+  Collection: !include /resourceTypes/Collection.raml
+uses:
+
+  ErrorDataTypes:  /resources/libraries/ErrorDataType.raml
+  GetAllAccounts: /resources/libraries/GetAccountsDataType.raml
+  GetSingleAccounts: /resources/libraries/GetAccountsDataType.raml
+  DeleteAccount: /resources/libraries/DeleteDataType.raml
+  PostAccount: /resources/libraries/PostAccountDataType.raml
+  UpdateAccount: /resources/libraries/UpdateAccountDataType.raml
+
+/account:
+  is: [headers]
+  type:
+    Collection:
+      post-request-schema: PostAccount.add_new_account
+      post-response-example: !include /examples/responses/accountCreatedExample.json
+      post-request-example: !include /examples/requests/createAccountExampleRequest.json
+      post-response-schema: PostAccount.create_account_response
+      errors-schema: ErrorDataTypes.error
+      get-response-schema: GetAllAccounts.get_all_accounts_response
+      get-response-example: !include /examples/responses/getAllAccounts.json
+  post:
+  get:
+  
+  /{ID}:
+    is: [headers]
+    type:
+      Collection:
+        put-request-example: !include /examples/requests/updateAccountExampleRequest.json
+        put-request-schema: UpdateAccount.update_account
+        put-response-schema: UpdateAccount.update_account_response
+        put-response-example: !include /examples/responses/accountUpdationResponseExample.json
+        errors-schema: ErrorDataTypes.error
+        delete-response-example: !include /examples/responses/accountDeletionResponseExample.json
+        delete-response-schema: DeleteAccount.delete_account_response
+        get-response-example: !include /examples/responses/getSingleAccount.json
+        get-response-schema: GetSingleAccounts.get_all_accounts_response
+    put:
+    delete:
+    get:
+  
+    
+  
+

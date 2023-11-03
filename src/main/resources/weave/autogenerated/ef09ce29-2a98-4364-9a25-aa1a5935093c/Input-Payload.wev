@@ -1,0 +1,18 @@
+%dw 2.0
+
+type auto_ef09ce29_2a98_4364_9a25_aa1a5935093c_Input_Payload = {
+  account_number: String | Null, 
+  billing_state: String | Null, 
+  phone: String, 
+  billing_country: String | Null, 
+  name: String, 
+  sync_new_record_to_sfdc: String, 
+  no_of_employees: Number, 
+  external_id: String, 
+  shipping_address: String, 
+  sync_updated_record_to_sfdc: String, 
+  annual_revenue: Number, 
+  shipping_country: String, 
+  _?: Any
+} {"description": "retrieving all accounts"}
+

@@ -1,0 +1,17 @@
+%dw 2.0
+
+type auto_452c8328_0de4_44a2_841c_a246090214f4_Input_Payload = {
+  account_number: String | Null, 
+  billing_state: String | Null, 
+  phone: String, 
+  billing_country: String | Null, 
+  sync_new_record_to_sfdc: String, 
+  no_of_employees: Number, 
+  external_id: String, 
+  shipping_address: String, 
+  sync_updated_record_to_sfdc: String, 
+  annual_revenue: Number, 
+  shipping_country: String, 
+  _?: Any
+} {"description": "updating an account"}
+

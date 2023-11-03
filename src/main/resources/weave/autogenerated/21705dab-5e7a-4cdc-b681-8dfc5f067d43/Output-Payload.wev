@@ -1,0 +1,19 @@
+%dw 2.0
+
+type auto_21705dab_5e7a_4cdc_b681_8dfc5f067d43_Output_Payload = {|
+  id: Number, 
+  account_number?: String, 
+  annual_revenue?: Number, 
+  billing_state?: String, 
+  billing_country?: String, 
+  name?: String, 
+  no_of_employees?: Number, 
+  phone?: String, 
+  shipping_address?: String, 
+  shipping_country?: String, 
+  shipping_city?: String, 
+  sync_new_record_to_sfdc?: String, 
+  sync_updated_record_to_sfdc?: String, 
+  external_id?: String
+|}
+

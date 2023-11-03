@@ -1,0 +1,14 @@
+{
+"account_number": "",
+"annual_revenue": 0,
+"billing_state": "",
+"billing_country": "",
+"no_of_employees":0,
+"phone": "9898989898",
+"shipping_address": "",
+"shipping_country": "",
+"shipping_city": "",
+"sync_new_record_to_sfdc": "",
+"sync_updated_record_to_sfdc": "",
+"external_id": ""
+        }

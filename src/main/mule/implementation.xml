@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="getAllAccountsSubFlow" doc:id="034044a7-29a1-47f0-892f-2317f8210e5b" >
+		<logger level="INFO" doc:name="getAllAccounts Implementation Flow Started" doc:id="6d946774-1ba3-4377-95e4-070f07bc9ed3" message='#["getAllAccountsSubFlow Flow Ended"]'/>
+		<db:select doc:name="Retrieving all Accounts Query" doc:id="ca40fcbf-ea76-41e9-8082-d311fd6d669e" config-ref="Database_Config1">
+			<db:sql ><![CDATA[select * from freedb_moviedb_170007.accounts]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transforming Success Payload to JSON" doc:id="250d741a-4145-4578-b254-f9fdebfe414c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="getAllAccounts Implementation Flow Ended" doc:id="83934a3d-06e8-4258-a2c8-4f5812ddd920" message='#["getAllAccountsSubFlow Flow Ended"]'/>
+	</sub-flow>
+	<sub-flow name="updateAccountByIdImplementation" doc:id="452c8328-0de4-44a2-841c-a246090214f4" >
+		<logger level="INFO" doc:name="updateAccountByIdImplemnetation Flow Started" doc:id="9821e34e-166a-4028-a6f3-4929df11b8cb" />
+		<set-variable value="#[attributes.uriParams.ID]" doc:name="storing id from payload" doc:id="3218de40-2640-48b6-bed5-c2cac60e0f35" variableName="id" />
+		<db:query-single doc:name="Retrieving Account with Id" doc:id="38bb6c87-8926-40b3-8043-d371adadbe8b" config-ref="Database_Config1" target="accountVar">
+			<db:sql ><![CDATA[select * from freedb_moviedb_170007.accounts where id= :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"id": attributes.uriParams.ID
+}]]]></db:input-parameters>
+		</db:query-single>
+		<choice doc:name="Choice" doc:id="34483279-283c-45ef-89af-0c23dd36d2d0" >
+			<when expression="#[isEmpty(vars.accountVar)]" >
+				<ee:transform doc:name="Error Message transform for Wrong/ Invalid Id" doc:id="6f8ffd02-f33b-4fd0-b2b4-0e88a97fe036">
+					<ee:message>
+						<ee:set-payload resource="dwlScripts\updatedAccountFail.dwl" />
+					
+</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<db:update doc:name="Updating Account Query" doc:id="2a459cb3-db9a-404c-9fba-406a54d7fb9c" config-ref="Database_Config1">
+					<db:sql><![CDATA[UPDATE accounts
+SET 
+    account_number = :ano,
+    annual_revenue = :are,
+    billing_state = :bs,
+    billing_country = :bc,
+    no_of_employees = :noe,
+    phone = :phone,
+    shipping_address = :shipadd,
+    shipping_country = :shipc,
+    sync_new_record_to_sfdc = :snsf ,
+    sync_updated_record_to_sfdc = :sudc,
+    external_id = :extid,
+    updated_at = :updated_at
+WHERE id = :id;]]></db:sql>
+					<db:input-parameters><![CDATA[#[{"id": vars.id,
+"ano": payload.account_number,
+"are": payload.annual_revenue,
+"updated_at":now(),
+"bs": payload.billing_state,
+"bc": payload.billing_country,
+"noe":payload.no_of_employees,
+"phone": payload.phone,
+"shipadd": payload.shipping_address,
+"shipc": payload.shipping_country,
+"snsf": payload.sync_new_record_to_sfdc,
+"sudc": payload.sync_updated_record_to_sfdc,
+"extid": payload.external_id
+        }]]]></db:input-parameters>
+				</db:update>
+				<ee:transform doc:name="Success Message Transform for Updating" doc:id="b5415ee3-a9bb-4aa8-8c1c-189ef973ddaf">
+					<ee:message>
+						<ee:set-payload resource="dwlScripts\updateAccountSuccess.dwl" />
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="updateAccountByIdImplemnetation Flow Started" doc:id="79067610-6686-4913-be0c-e464792b659e" />
+	</sub-flow>
+	<sub-flow name="create-accounts-implementation" doc:id="ef09ce29-2a98-4364-9a25-aa1a5935093c" >
+		<logger level="INFO" doc:name="create-accounts implementation flow started" doc:id="920d5717-6826-4cb0-8df1-2c8297f5be0e" />
+		<set-variable value="#[payload.name]" doc:name="storing name field from request payload" doc:id="0f4117c7-db8c-4838-986a-096fbb27d471" variableName="name"/>
+		<db:insert doc:name="Inserting Data into DB" doc:id="9fb82eac-97c8-457f-8678-667446a80660" config-ref="Database_Config1">
+			<db:sql ><![CDATA[INSERT INTO accounts (account_number, annual_revenue, billing_state, billing_country, name, no_of_employees, phone, shipping_address, shipping_country, shipping_city, sync_new_record_to_sfdc, sync_updated_record_to_sfdc, external_id,created_at)
+VALUES(:ano,:are,:bs,:bc,:name,:noe,:phone,:shipadd,:shipc,:sc,:snsf,:sudc,:extid,:created_at)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[output application/json ---
+{
+	"created_at": now(),
+"ano": payload.account_number,
+"are": payload.annual_revenue,
+"bs": payload.billing_state,
+"bc": payload.billing_country,
+"noe":payload.no_of_employees,
+"name":payload.name,
+"phone": payload.phone,
+"shipadd": payload.shipping_address,
+"shipc": payload.shipping_country,
+"sc":payload.shipping_address,
+"snsf": payload.sync_new_record_to_sfdc,
+"sudc": payload.sync_updated_record_to_sfdc,
+"extid": payload.external_id
+        }]]]></db:input-parameters>
+		</db:insert>
+		<db:select doc:name="Retrieving Inserted Record Based on name" doc:id="9fb1f8ee-f837-4918-88fb-0faaa11ead84" config-ref="Database_Config1">
+			<db:sql ><![CDATA[select max(id) from accounts where name = :name]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"name": vars.name
+}]]]></db:input-parameters>
+		</db:select>
+		<logger level="INFO" doc:name="Logging the Max(id) from DB with payload name" doc:id="e96c9dd6-38b4-46a8-aaa9-4837e2c33ebe" message="#[payload[0][0]]"/>
+		<choice doc:name="Choice" doc:id="4bb3d8a4-96db-4edd-ad2d-e380790a3a38" >
+			<when expression="#[(payload[0][0]) &gt; 0]">
+				<ee:transform doc:name="Success Response Transform" doc:id="610df7a5-bf7d-4d8c-97c1-802b782f2a01">
+			<ee:message>
+				<ee:set-payload resource="dwlScripts\createdAccount.dwl" />
+			</ee:message>
+			<ee:variables>
+			</ee:variables>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Fail Response Transform" doc:id="2e3d57fa-09dc-4303-8ffa-974479147f87" >
+					<ee:message >
+						<ee:set-payload resource="dwlScripts\createdAccount.dwl" />
+					</ee:message>
+					<ee:variables />
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="create-accounts implementation flow ended" doc:id="b15968c5-75de-4ada-8cbb-b7d5d5f526d9" />
+	</sub-flow>
+	<sub-flow name="delete_Account_By_Id_Implementation" doc:id="008a703c-91cf-4438-9b90-0006b8348d17" >
+		<logger level="INFO" doc:name="delete_Account_By_Id_Implementation_Flow Started" doc:id="df496993-cba2-4407-b701-5ade2fad867d" />
+		<set-variable value="#[attributes.uriParams.ID]" doc:name="storing id from uriParams" doc:id="f2a59512-3898-45e3-af7b-5ee38ba60abc" variableName="id"/>
+		<db:select doc:name="Retrieving Single Record" doc:id="e649186a-7713-4e8d-baae-388e7d06354b" config-ref="Database_Config1">
+			<db:sql ><![CDATA[select * from freedb_moviedb_170007.accounts where id= :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"id": attributes.uriParams.ID
+}]]]></db:input-parameters>
+		</db:select>
+		<choice doc:name="Choice" doc:id="cdfda989-6c7a-4094-8d85-c23f71a83f83" >
+			<when expression="#[sizeOf(payload) &gt; 0]" >
+				<db:delete doc:name="Deleting Record from Database" doc:id="95081eab-6039-4bf6-8706-45117bfb6de0" config-ref="Database_Config1">
+			<db:sql><![CDATA[delete from freedb_moviedb_170007.accounts where id= :id]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	"id": payload[0].id
+}]]]></db:input-parameters>
+		</db:delete>
+				<ee:transform doc:name="Transforming Payload After Successfull Deletion" doc:id="f09b12f3-32a3-497a-8576-25768342475d" >
+					<ee:message >
+						<ee:set-payload resource="dwlScripts\deletedAccount.dwl" />
+					</ee:message>
+					<ee:variables >
+					</ee:variables>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Response Transform for Bad Requests" doc:id="0c89b910-952c-4b0c-bf34-ce0182e77f43" >
+					<ee:message >
+						<ee:set-payload resource="dwlScripts\deleteAccountResponse.dwl" />
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="delete_Account_By_Id_Implementation Flow Ended" doc:id="9985d258-7645-46e8-ac81-0a99866d2cc8" />
+	</sub-flow>
+	<sub-flow name="get_Account_By_Id_Implementation" doc:id="21705dab-5e7a-4cdc-b681-8dfc5f067d43" >
+		<logger level="INFO" doc:name="get_Account_By_Id_Implementation flow Started" doc:id="7f6ef2fe-0451-4a22-a968-1ae9bceb5c92" message='#["get_Account_By_Id_Implementation Flow Started"]'/>
+		<db:query-single doc:name="Retrieving Row based on Id from uriParams" doc:id="fae85a7b-8f87-4e9c-8246-5fa669d23ac1" config-ref="Database_Config1">
+			<db:sql ><![CDATA[select * from freedb_moviedb_170007.accounts where id= :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"id": attributes.uriParams.ID
+}]]]></db:input-parameters>
+		</db:query-single>
+		<choice doc:name="Choice" doc:id="dcc7bc9e-7261-444f-85fe-82345ae48013" >
+			<when expression="#[sizeOf(payload) &gt; 0]">
+				<ee:transform doc:name="Get By Id Response Transform" doc:id="8707d5c5-1cba-4693-bd0e-488e765ecf11" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Error Response Transform" doc:id="3dc62b5d-9354-41e9-b74a-e23f9c2d5193" >
+					<ee:message >
+						<ee:set-payload resource="dwlScripts\getAccountById.dwl" />
+					</ee:message>
+					<ee:variables >
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="get_Account_By_Id_Implementation Flow Ended" doc:id="173f4e26-ee3f-4929-87fa-442cd6a72b11" message='#["get_Account_By_Id_Implementation Flow Ended"]'/>
+	</sub-flow>
+	
+</mule>

@@ -1,0 +1,11 @@
+db:
+  password: "![wxo06h0pfg7ahEtmtgiEnA==]"
+  user: "![gRel7WrAzokexLycW/qRiL7qy77YSSW8]"
+  database: "freedb_moviedb_170007"
+  port: "3306"
+
+ad:
+  id: "![hH59/7JjjRPxX1QrdmzhGg==]"
+  
+keystore:
+  password: "![XdHSa6oC5GP75/NsMAOj3g==]"

@@ -1,0 +1,10 @@
+%dw 2.0
+
+type auto_452c8328_0de4_44a2_841c_a246090214f4_Output_Payload = {
+  response: Array<{    id: Number,     is_success: Boolean,     errors: Array<Any>, 
+    _?: Any
+  }> {"description": "Errors"}, 
+  is_success: Boolean, 
+  _?: Any
+}
+
